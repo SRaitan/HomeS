@@ -96,6 +96,7 @@ public class Menu implements Cipher.CipherListener, Input,Output{
                         }
                         if (cipher != null) {
                             cipher.action(getFileFromUser(),0,false);
+                            cipher.setListener(this);
                             returnToSwitch = false;
                         }
                         break;
@@ -108,22 +109,25 @@ public class Menu implements Cipher.CipherListener, Input,Output{
         }
 
     private int setKey (boolean mult) throws InvalidFileException {
-        return makeIntKey(getFileFromUser(true),mult);
+        int key=makeIntKey(getFileFromUser(true),mult);
+        myOutput.output(key+"key");
+        return key;
     }
     private int getKey(boolean mult) throws InvalidFileException {
         Serializable key = FileManipulator.readObjectFromFile (getFileFromUser(true));
         if(key instanceof IntKey) {
-            int value = ((IntKey) key).getKey();
-            if (mult && value % 2 == 0)
+            IntKey temp = (IntKey) key;
+            int value = temp.getKey();
+            if (mult && (value % 2 == 0))
                 throw new InvalidCipherKeyException("Key for MultiplicationCipher must be odd");
+            myOutput.output(value+" decKey");
             return value;
         }
         throw new InvalidFileException("Problem reading cipher key from file");
     }
-
     private int makeIntKey (File file, boolean mult) throws InvalidCipherKeyException, InvalidFileException {
         IntKey writeableKey = new IntKey();
-        int key = writeableKey.getKey();
+        int key = writeableKey.makeKey();
             if (mult && (key % 2 == 0))
                 writeableKey.setKey(key + 1);
             FileManipulator.writeObjectToFile(file, writeableKey);
@@ -136,7 +140,7 @@ public class Menu implements Cipher.CipherListener, Input,Output{
         if(!key)
             myOutput.output("Enter the path of your file: ");
         else
-            myOutput.output("Enter the path of the file you want to save your key in: ");
+            myOutput.output("Enter the path of the file of your key: ");
         String filePath = myInput.input();
         while (!FileManipulator.isValidFile(filePath) || filePath.isEmpty()) {
             myOutput.output("The path you entered seems to be invalid or nonexistent. Please retry: ");

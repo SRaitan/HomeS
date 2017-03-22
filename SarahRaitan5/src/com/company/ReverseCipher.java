@@ -13,7 +13,7 @@ public class ReverseCipher extends Cipher {
     }
 
     @Override
-    public void action(File original, int key, boolean encrypt) {
+    public void action(File original, int key, boolean encrypt) throws InvalidFileException {
         algToReverse.action(original, key, !encrypt);
         new File(FileManipulator.returnFile(original,!encrypt).getAbsolutePath()).renameTo(FileManipulator.returnFile(original,encrypt));
     }

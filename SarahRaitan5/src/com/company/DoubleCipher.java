@@ -21,12 +21,12 @@ public class DoubleCipher extends Cipher {
         this.secondAlgorithm = secondAlgorithm;
     }
 
-    public void encrypt(File original) {
+    public void encrypt(File original) throws InvalidFileException {
         firstAlgorithm.action(original, key1,true);
         secondAlgorithm.action(FileManipulator.returnFile(original,true), key2,true);
     }
 
-    public void decrypt(File original) {
+    public void decrypt(File original) throws InvalidFileException {
         secondAlgorithm.action(original, key2,false);
         firstAlgorithm.action(FileManipulator.returnFile(original,false), key1,false);
     }

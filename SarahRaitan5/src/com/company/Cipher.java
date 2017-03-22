@@ -21,7 +21,7 @@ public abstract class Cipher implements CipherInterface{
     @Override
     public abstract int decrypt(int oneByte, int key);
 
-    public void action(File original, int key, boolean encrypt) {
+    public void action(File original, int key, boolean encrypt) throws InvalidFileException {
         started();
         OutputStream outputStream = null;
         InputStream inputStream = null;
