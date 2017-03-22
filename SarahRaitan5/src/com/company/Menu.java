@@ -72,6 +72,7 @@ public class Menu implements Cipher.CipherListener, Input,Output{
                             }
                         }
                         if (cipher != null) {
+                            cipher.setListener(this);
                             cipher.action(getFileFromUser(),0,true);
                             returnToSwitch = false;
                         }
@@ -95,8 +96,8 @@ public class Menu implements Cipher.CipherListener, Input,Output{
                             }
                         }
                         if (cipher != null) {
-                            cipher.action(getFileFromUser(),0,false);
                             cipher.setListener(this);
+                            cipher.action(getFileFromUser(),0,false);
                             returnToSwitch = false;
                         }
                         break;
