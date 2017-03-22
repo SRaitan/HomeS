@@ -1,6 +1,5 @@
 package com.company;
 import java.io.*;
-import java.util.Random;
 
 
 public class Menu implements Cipher.CipherListener, Input,Output{
@@ -52,53 +51,82 @@ public class Menu implements Cipher.CipherListener, Input,Output{
             myOutput.output("Welcome! Press 1 to encrypt a file, 2 to decrypt a file, 0 to exit: ");
             if ((action = myInput.input()).equals(EXIT))
                 return;
-            if (action.equals(ENCRYPT) || action.equals(DECRYPT)) {
-                try {
-                    do {
+            try {
+            do {
+                switch (action) {
+                    case ENCRYPT:
                         switch (DoubleOption()) {
                             case XorReverse:
-                                cipher = new DoubleCipher(new XORCipher(), new ReverseCipher(chooseRevOption()),
-                                        setKey(false), setKey(false));
+                                myOutput.output("You chose XOR & Reverse");
+                                Cipher forReverse = chooseRevOption();
+                                cipher = new DoubleCipher(new XORCipher(), new ReverseCipher(forReverse), setKey(false), setKey(false));
                                 break;
                             case CaesarMult:
-                                cipher = new DoubleCipher(new CaesarCipher(), new MultiplicationCipher(),
-                                        setKey(false), setKey(true));
+                                myOutput.output("You chose Caesar & Multiply");
+                                mult = true;
+                                cipher = new DoubleCipher(new CaesarCipher(), new MultiplicationCipher(), setKey(false),setKey(true));
                                 break;
                             default: {
-                                myOutput.output("Invalid option");
+                                myOutput.output("Incorrect choice");
                                 returnToSwitch = true;
                             }
                         }
                         if (cipher != null) {
-                            cipher.action(getFileFromUser(), 0, action.equals(ENCRYPT));
+                            cipher.action(getFileFromUser(),0,true);
                             returnToSwitch = false;
                         }
-                    } while (returnToSwitch);
-                } catch (Exception e) {
-                    myOutput.output("Something went wrong... " + e.getMessage() + " Please try again");
+                        break;
+
+                    case DECRYPT:
+                        switch (DoubleOption()) {
+                            case XorReverse:
+                                myOutput.output("You chose XOR & Reverse");
+                                Cipher forReverse = chooseRevOption();
+                                cipher = new DoubleCipher(new XORCipher(), new ReverseCipher(forReverse),getKey(false), getKey(false));
+                                break;
+                            case CaesarMult:
+                                myOutput.output("You chose Caesar & Multiply");
+                                cipher = new DoubleCipher(new CaesarCipher(), new MultiplicationCipher(), getKey(false), getKey(true));
+                                mult = true;
+                                break;
+                            default: {
+                                myOutput.output("Incorrect cipher choice");
+                                returnToSwitch = true;
+                            }
+                        }
+                        if (cipher != null) {
+                            cipher.action(getFileFromUser(),0,false);
+                            returnToSwitch = false;
+                        }
+                        break;
                 }
+            } while (returnToSwitch);
+        } catch (Exception e) {
+            myOutput.output("Something went wrong... " + e.getMessage() + " Please try again");
+        }
             }
         }
-    }
-    //private int setKey () throws InvalidFileException {return setKey(false);}
+
     private int setKey (boolean mult) throws InvalidFileException {
         return makeIntKey(getFileFromUser(true),mult);
     }
-    private int getKey1() throws InvalidFileException {
-        Serializable key = FileManipulator.readObjectFromFile (new File("C:\\Users\\hackeru.HACKERU3\\Desktop\\Keys\\key1.bin"));
-        return (Integer) key;
-    }
-
-    private int getKey2() throws InvalidFileException {
-        Serializable key = FileManipulator.readObjectFromFile (new File("C:\\Users\\hackeru.HACKERU3\\Desktop\\Keys\\key2.bin"));
-        return (Integer) key;
+    private int getKey(boolean mult) throws InvalidFileException {
+        Serializable key = FileManipulator.readObjectFromFile (getFileFromUser(true));
+        if(key instanceof IntKey) {
+            int value = ((IntKey) key).getKey();
+            if (mult && value % 2 == 0)
+                throw new InvalidCipherKeyException("Key for MultiplicationCipher must be odd");
+            return value;
+        }
+        throw new InvalidFileException("Problem reading cipher key from file");
     }
 
     private int makeIntKey (File file, boolean mult) throws InvalidCipherKeyException, InvalidFileException {
-        int key = new IntKey().getKey();
+        IntKey writeableKey = new IntKey();
+        int key = writeableKey.getKey();
             if (mult && (key % 2 == 0))
-                key = key + 1;
-            FileManipulator.writeObjectToFile(file, key);
+                writeableKey.setKey(key + 1);
+            FileManipulator.writeObjectToFile(file, writeableKey);
             return key;
     }
     private File getFileFromUser() {
