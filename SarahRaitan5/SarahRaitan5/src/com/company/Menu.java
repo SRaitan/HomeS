@@ -10,20 +10,33 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 
-public class Menu implements Cipher.CipherListener{
+public class Menu {
     //region constValues
     private static final String EXIT= "0";
     private static final String ENCRYPT = "1";
     private static final String DECRYPT = "2";
     //endregion
-    private Input myInput;
-    private Output myOutput;
-    public FileEncryptor <DoubleKey<DoubleKey<Integer, Integer>, Integer>> fileEncryptor
-            =new FileEncryptor<DoubleKey<DoubleKey<Integer, Integer>, Integer>>();
-
-    Menu(Input myInput, Output myOutput) {
+    //region singleton
+    private static Menu theInstance;
+    private Menu(Input myInput, Output myOutput) {
         this.myInput = myInput;
         this.myOutput = myOutput;
+    }
+    public static Menu getInstance(){
+        if(theInstance == null)
+            theInstance = new Menu(new UserInput(), new UserOutput());
+        return theInstance;
+    }
+    //endregion
+    private Input myInput;
+    private Output myOutput;
+    EncryptionListener encryptionListener = new EncryptionListener();
+    public FileEncryptor <DoubleKey<DoubleKey<Integer, Integer>, Integer>> fileEncryptor
+            = new FileEncryptor<DoubleKey<DoubleKey<Integer, Integer>, Integer>>();
+
+
+    public void sendToUser(String s){
+        myOutput.output(s);
     }
 
     void DoubleMenu() {
@@ -56,7 +69,7 @@ public class Menu implements Cipher.CipherListener{
     public Cipher<Couple> getAlgorithms () throws InvalidFileException {
         Cipher<Couple> forReverse = new DoubleCipher(new CaesarCipher(), new MultiplicationCipher());
         Cipher<Couple> cipher = new DoubleCipher(forReverse,new XORCipher());
-        cipher.setListener(this);//TODO: listener class
+        cipher.setListener(encryptionListener);//TODO: listener class
         return cipher;
     }
     DoubleKey<DoubleKey<Integer, Integer>, Integer> setKey(File original) throws InvalidFileException {
@@ -107,18 +120,18 @@ public class Menu implements Cipher.CipherListener{
         return new File(filePath);
     }
 
-    @Override
-    public void started() {
+/*    @Override
+    public void onStarted() {
         DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
         Date date = new Date();
         myOutput.output("Started at: "+ dateFormat.format(date));
     }
 
     @Override
-    public void finished() {
+    public void onFinished() {
         DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
         Date date = new Date();
         myOutput.output("Finished at: "+ dateFormat.format(date));
-    }
+    }*/
 
 }

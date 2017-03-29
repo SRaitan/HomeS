@@ -19,4 +19,5 @@ public class UserInput implements Input {
         }
         return "";
     }
+
 }

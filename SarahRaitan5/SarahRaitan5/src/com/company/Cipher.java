@@ -1,5 +1,4 @@
 package com.company;
-import Key.Key;
 import java.io.*;
 
 public abstract class Cipher<T>  {
@@ -9,12 +8,12 @@ public abstract class Cipher<T>  {
 
     void started (){
         if(listener != null)
-            listener.started();
+            listener.onStarted();
     }
 
     void finished (){
         if(listener != null)
-            listener.finished();
+            listener.onFinished();
     }
 
     public void encrypt(OutputStream outputStream, InputStream inputStream, T key) throws InvalidFileException {
@@ -46,7 +45,7 @@ public abstract class Cipher<T>  {
     abstract public int decrypt(int oneByte, T key);
 
     interface CipherListener{
-        void started();
-        void finished();
+        void onStarted();
+        void onFinished();
     }
 }
