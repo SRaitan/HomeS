@@ -8,6 +8,6 @@ import com.company.InputOutput.UserOutput;
  */
 public class Main {
     public static void main(String[] args) {
-        new Menu(new UserInput(), new UserOutput()).DoubleMenu();
+        Menu.getInstance().DoubleMenu();
     }
 }
