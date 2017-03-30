@@ -2,9 +2,6 @@ package EncryptionAlgorithms;
 
 import com.company.Cipher;
 
-/**
- * Created by hackeru on 3/19/2017.
- */
 public class XORCipher extends Cipher<Integer> {
 
     @Override

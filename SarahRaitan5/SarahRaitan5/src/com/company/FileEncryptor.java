@@ -1,6 +1,5 @@
 package com.company;
-
-import EncryptionAlgorithms.ReverseCipher;
+import EncryptionAlgorithms.*;
 
 import java.io.*;
 
@@ -109,7 +108,7 @@ public class FileEncryptor <T> {
         InputStream inputStream = null;
         try {
             File newFile;
-            if(cipher instanceof ReverseCipher)
+            if(cipher instanceof XORCipher)
                newFile = FileEncryptor.returnFile(original, false);
             else
                 newFile = FileEncryptor.returnFile(original, true);

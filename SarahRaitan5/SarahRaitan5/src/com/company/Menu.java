@@ -30,15 +30,8 @@ public class Menu {
     //endregion
     private Input myInput;
     private Output myOutput;
-
-    EncryptionListener encryptionListener = new EncryptionListener();
     FileEncryptor <DoubleKey<DoubleKey<Integer, Integer>, Integer>> fileEncryptor
             = new FileEncryptor<DoubleKey<DoubleKey<Integer, Integer>, Integer>>();
-
-
-    void sendToUser(String s){
-        myOutput.output(s);
-    }
 
     void DoubleMenu() {
         String action;
@@ -48,7 +41,7 @@ public class Menu {
                 return;
             try {
                 File originalFile = getFileFromUser();
-                DoubleKey<DoubleKey<Integer, Integer>, Integer> cipherKey;
+                DoubleKey <DoubleKey<Integer, Integer>, Integer> cipherKey;
                 if (action.equals(ENCRYPT))
                     cipherKey = setKey(originalFile);
                 else
@@ -62,8 +55,8 @@ public class Menu {
 
     Cipher<Couple> getAlgorithms () throws InvalidFileException {
         Cipher<Couple> forReverse = new DoubleCipher(new CaesarCipher(), new MultiplicationCipher());
-        Cipher<Couple> cipher = new DoubleCipher(forReverse,new XORCipher());
-        cipher.setListener(encryptionListener);//TODO: listener class
+        Cipher<Couple> cipher = new DoubleCipher(new ReverseCipher(forReverse), new XORCipher());
+        cipher.setListener(new EncryptionListener(myOutput));
         return cipher;
     }
 

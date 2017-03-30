@@ -35,11 +35,5 @@ public abstract class Cipher<T>  {
     }
 
     abstract public int encrypt(int oneByte, T key);
-
     abstract public int decrypt(int oneByte, T key);
-
-    interface CipherListener{
-        void onStarted();
-        void onFinished();
-    }
 }

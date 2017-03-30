@@ -1,11 +1,10 @@
 package EncryptionAlgorithms;
-import com.company.Cipher;
-import com.company.FileEncryptor;
+import com.company.*;
 
 public class ReverseCipher<T> extends Cipher<T> {
     private Cipher algToReverse;
 
-    ReverseCipher(Cipher cipher) {
+    public ReverseCipher(Cipher cipher) {
         algToReverse = cipher;
     }
     // T key because we can't be sure of what type the key will be
