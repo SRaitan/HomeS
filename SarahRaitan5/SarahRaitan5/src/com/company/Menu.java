@@ -30,48 +30,43 @@ public class Menu {
     //endregion
     private Input myInput;
     private Output myOutput;
+
     EncryptionListener encryptionListener = new EncryptionListener();
-    public FileEncryptor <DoubleKey<DoubleKey<Integer, Integer>, Integer>> fileEncryptor
+    FileEncryptor <DoubleKey<DoubleKey<Integer, Integer>, Integer>> fileEncryptor
             = new FileEncryptor<DoubleKey<DoubleKey<Integer, Integer>, Integer>>();
 
 
-    public void sendToUser(String s){
+    void sendToUser(String s){
         myOutput.output(s);
     }
 
     void DoubleMenu() {
         String action;
-        Cipher<Couple> cipher1 = null;
         while (true) {
             myOutput.output("Welcome! Press 1 to encrypt a file, 2 to decrypt a file, 0 to exit: ");
             if ((action = myInput.input()).equals(EXIT))
                 return;
             try {
-                File originalFile=getFileFromUser();
-                if (action.equals(ENCRYPT)) {
-                    cipher1 = getAlgorithms();
-                    DoubleKey<DoubleKey<Integer, Integer>, Integer> key = setKey(originalFile);
-                    fileEncryptor.encryptFile(originalFile,cipher1,key);
-                } else if (action.equals(DECRYPT)){
-                    cipher1 = getAlgorithms();
-                    DoubleKey <DoubleKey<Integer, Integer>, Integer> key = getKeyFromFile();
-                    fileEncryptor.decryptFile(originalFile, cipher1, key);
-                    break;
-                }
-            } catch (InvalidFileException e) {
-                e.printStackTrace();
+                File originalFile = getFileFromUser();
+                DoubleKey<DoubleKey<Integer, Integer>, Integer> cipherKey;
+                if (action.equals(ENCRYPT))
+                    cipherKey = setKey(originalFile);
+                else
+                    cipherKey = getKeyFromFile();
+                fileEncryptor.encryptOrDecryptFile(originalFile, getAlgorithms() ,cipherKey, action.equals(ENCRYPT));
             } catch (Exception e) {
                 e.printStackTrace();
-                // myOutput.output("Something went wrong... " + e.getMessage() + " Please try again");
             }
         }
     }
-    public Cipher<Couple> getAlgorithms () throws InvalidFileException {
+
+    Cipher<Couple> getAlgorithms () throws InvalidFileException {
         Cipher<Couple> forReverse = new DoubleCipher(new CaesarCipher(), new MultiplicationCipher());
         Cipher<Couple> cipher = new DoubleCipher(forReverse,new XORCipher());
         cipher.setListener(encryptionListener);//TODO: listener class
         return cipher;
     }
+
     DoubleKey<DoubleKey<Integer, Integer>, Integer> setKey(File original) throws InvalidFileException {
         DoubleKey<DoubleKey<Integer, Integer>, Integer> finalKey = makeMasterKey();
         fileEncryptor.writeObjectToFile(fileEncryptor.createKeyFile(original), finalKey);
@@ -85,7 +80,7 @@ public class Menu {
         return new  DoubleKey<DoubleKey<Integer, Integer>, Integer>(forRev, randomKeyMaker.newKey());
     }
 
-    private DoubleKey<DoubleKey<Integer, Integer>, Integer> getKeyFromFile () throws Exception{ //TODO: remove flags
+    private DoubleKey<DoubleKey<Integer, Integer>, Integer> getKeyFromFile () throws Exception{
         Serializable key = fileEncryptor.readObjectFromFile (getFileFromUser(true));
         if(key instanceof DoubleKey){
             DoubleKey<DoubleKey<Integer, Integer>, Integer> newKey =
@@ -94,20 +89,12 @@ public class Menu {
         }
         throw new InvalidCipherKeyException("Key could not be read from file");
     }
-    private RandomKey makeIntKey (File file, boolean mult) throws InvalidCipherKeyException, InvalidFileException {
-        RandomKey toWrite = new RandomKey();
-        int key = toWrite.getKey();
-            if (mult &&(key % 2 == 0)) {
-                toWrite.setKey(key + 1);
-            }
-            fileEncryptor.writeObjectToFile(file, toWrite);
-            return toWrite;
-    }
+
     private File getFileFromUser() {
         return getFileFromUser(false);
     }
-    private File getFileFromUser(boolean key) {
-        if(!key)
+    private File getFileFromUser(boolean isKeyFile) {
+        if(!isKeyFile)
             myOutput.output("Enter the path of your file: ");
         else
             myOutput.output("Enter the path of the file of your key: ");
@@ -115,23 +102,8 @@ public class Menu {
         while (!fileEncryptor.isValidFile(filePath) || filePath.isEmpty()) {
             myOutput.output("The path you entered seems to be invalid or nonexistent. Please retry: ");
             filePath = myInput.input();// TODO: make separate func in fileenc and throw exceptions
-
         }
         return new File(filePath);
     }
-
-/*    @Override
-    public void onStarted() {
-        DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
-        Date date = new Date();
-        myOutput.output("Started at: "+ dateFormat.format(date));
-    }
-
-    @Override
-    public void onFinished() {
-        DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
-        Date date = new Date();
-        myOutput.output("Finished at: "+ dateFormat.format(date));
-    }*/
 
 }

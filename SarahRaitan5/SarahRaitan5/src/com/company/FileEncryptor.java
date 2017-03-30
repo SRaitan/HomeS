@@ -4,7 +4,7 @@ import EncryptionAlgorithms.ReverseCipher;
 
 import java.io.*;
 
-class FileEncryptor <T> {
+public class FileEncryptor <T> {
 
     boolean isValidFile(String filepath) {
         File file = new File(filepath);
@@ -54,7 +54,7 @@ class FileEncryptor <T> {
             }
     }
 
-    Serializable readObjectFromFile(File file) throws InvalidFileException {
+    public Serializable readObjectFromFile(File file) throws InvalidFileException {
         InputStream inputStream = null;
         ObjectInputStream objectInputStream = null;
         Serializable toRead = null;
@@ -104,16 +104,21 @@ class FileEncryptor <T> {
             }
     }
 
-    void encryptFile(File original, Cipher cipher, T key) {
+    void encryptOrDecryptFile(File original, Cipher cipher, T key, boolean encryptFile) {
         OutputStream outputStream = null;
         InputStream inputStream = null;
         try {
-            File newFile = FileEncryptor.returnFile(original, true);
+            File newFile;
+            if(cipher instanceof ReverseCipher)
+               newFile = FileEncryptor.returnFile(original, false);
+            else
+                newFile = FileEncryptor.returnFile(original, true);
             outputStream = new FileOutputStream(newFile);
             inputStream = new FileInputStream(original);
-            cipher.encrypt(outputStream, inputStream, key);
-            if(cipher instanceof ReverseCipher)
-                renameReverseFile(original,true);
+            if(encryptFile)
+                cipher.encryptOrDecrypt(outputStream, inputStream, key, true);
+            else
+                cipher.encryptOrDecrypt(outputStream, inputStream, key, false);
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
@@ -121,24 +126,7 @@ class FileEncryptor <T> {
         }
     }
 
-    void decryptFile(File original, Cipher cipher, T key) {
-        OutputStream outputStream = null;
-        InputStream inputStream = null;
-        try {
-            File newFile = FileEncryptor.returnFile(original, true);
-            outputStream = new FileOutputStream(newFile);
-            inputStream = new FileInputStream(original);
-            cipher.decrypt(outputStream, inputStream, key);
-            if(cipher instanceof ReverseCipher)
-                renameReverseFile(original,false);
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            closeFile(inputStream, outputStream);
-        }
-    }
-
-    static void renameReverseFile (File original, boolean encrypt){
+    public static void renameReverseFile (File original, boolean encrypt){
         try {
             new File(returnFile(original,!encrypt).getAbsolutePath()).renameTo(returnFile(original,encrypt));
         } catch (InvalidFileException e) {

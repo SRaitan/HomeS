@@ -16,24 +16,18 @@ public abstract class Cipher<T>  {
             listener.onFinished();
     }
 
-    public void encrypt(OutputStream outputStream, InputStream inputStream, T key) throws InvalidFileException {
+    public void encryptOrDecrypt(OutputStream outputStream, InputStream inputStream, T key, boolean encryptFile) throws InvalidFileException {
         started();
         try {
             int oneByte;
-            while ((oneByte = inputStream.read()) != -1)
-                outputStream.write(encrypt(oneByte,key));
-            finished();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void decrypt(OutputStream outputStream, InputStream inputStream, T key) throws InvalidFileException {
-        try{
-            started();
-            int oneByte;
-            while ((oneByte = inputStream.read()) != -1)
-                outputStream.write(decrypt(oneByte, key));
+            if(encryptFile) {
+                while ((oneByte = inputStream.read()) != -1)
+                    outputStream.write(encrypt(oneByte, key));
+            }
+            else{
+                while ((oneByte = inputStream.read()) != -1)
+                    outputStream.write(decrypt(oneByte, key));
+            }
             finished();
         } catch (Exception e) {
             e.printStackTrace();
