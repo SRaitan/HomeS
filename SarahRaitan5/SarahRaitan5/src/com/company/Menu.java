@@ -3,12 +3,7 @@ import EncryptionAlgorithms.*;
 import Key.*;
 import Key.InvalidCipherKeyException;
 import com.company.InputOutput.*;
-
 import java.io.*;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-
 
 public class Menu {
     //region constValues
