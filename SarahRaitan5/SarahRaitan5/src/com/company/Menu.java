@@ -55,7 +55,7 @@ public class Menu {
         return cipher;
     }
 
-    DoubleKey<DoubleKey<Integer, Integer>, Integer> setKey(File original) throws InvalidFileException {
+    private DoubleKey<DoubleKey<Integer, Integer>, Integer> setKey(File original) throws InvalidFileException {
         DoubleKey<DoubleKey<Integer, Integer>, Integer> finalKey = makeMasterKey();
         fileEncryptor.writeObjectToFile(fileEncryptor.createKeyFile(original), finalKey);
         return finalKey;

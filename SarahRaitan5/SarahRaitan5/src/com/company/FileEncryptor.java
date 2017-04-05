@@ -108,10 +108,10 @@ public class FileEncryptor <T> {
         InputStream inputStream = null;
         try {
             File newFile;
-            if(cipher instanceof XORCipher)
+            if(cipher instanceof ReverseCipher)
                newFile = FileEncryptor.returnFile(original, false);
             else
-                newFile = FileEncryptor.returnFile(original, true);
+                newFile = FileEncryptor.returnFile(original, encryptFile);
             outputStream = new FileOutputStream(newFile);
             inputStream = new FileInputStream(original);
             if(encryptFile)
