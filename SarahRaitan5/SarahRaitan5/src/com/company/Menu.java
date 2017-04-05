@@ -9,7 +9,6 @@ public class Menu {
     //region constValues
     private static final String EXIT= "0";
     private static final String ENCRYPT = "1";
-    private static final String DECRYPT = "2";
     //endregion
     //region singleton
     private static Menu theInstance;

@@ -10,7 +10,7 @@ public class FileEncryptor <T> {
         return (file.exists() && file.isFile() && file.canWrite() && file.canRead());
     }
 
-    static File returnFile(File original, boolean encrypt) throws InvalidFileException {
+    private File returnFile(File original, boolean encrypt) throws InvalidFileException {
         if (original == null)
             throw new InvalidFileException("No return file found");
         String fname = original.getAbsolutePath();
@@ -34,26 +34,11 @@ public class FileEncryptor <T> {
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
-            closeObjectOutputStream(objectOutputStream, outputStream);
+            closeStreams(objectOutputStream, outputStream);
         }
     }
 
-    void closeObjectOutputStream(ObjectOutputStream objectOutputStream, OutputStream outputStream) {
-        if (objectOutputStream != null)
-            try {
-                objectOutputStream.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        if (outputStream != null)
-            try {
-                outputStream.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-    }
-
-    public Serializable readObjectFromFile(File file) throws InvalidFileException {
+    Serializable readObjectFromFile(File file) throws InvalidFileException {
         InputStream inputStream = null;
         ObjectInputStream objectInputStream = null;
         Serializable toRead = null;
@@ -68,39 +53,20 @@ public class FileEncryptor <T> {
         } catch (ClassNotFoundException e) {
             e.getMessage();
         } finally {
-            closeObjectInputStream(inputStream, objectInputStream);
+            closeStreams(inputStream, objectInputStream);
         }
         return toRead;
     }
 
-    void closeObjectInputStream(InputStream inputStream, ObjectInputStream objectInputStream) {
-        if (objectInputStream != null)
-            try {
-                objectInputStream.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        if (inputStream != null)
-            try {
-                inputStream.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-    }
-
-    void closeFile(InputStream inputStream, OutputStream outputStream) {
-        if (outputStream != null)
-            try {
-                outputStream.close();
-            } catch (IOException e) {
-                e.getMessage();
-            }
-        if (inputStream != null)
-            try {
-                inputStream.close();
-            } catch (IOException e) {
-                e.getMessage();
-            }
+    private void closeStreams(Closeable... closeables){
+        for(Closeable closeable : closeables){
+            if(closeable != null)
+                try {
+                    closeable.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+        }
     }
 
     void encryptOrDecryptFile(File original, Cipher cipher, T key, boolean encryptFile) {
@@ -109,9 +75,9 @@ public class FileEncryptor <T> {
         try {
             File newFile;
             if(cipher instanceof ReverseCipher)
-               newFile = FileEncryptor.returnFile(original, false);
+               newFile = returnFile(original, false);
             else
-                newFile = FileEncryptor.returnFile(original, encryptFile);
+                newFile = returnFile(original, encryptFile);
             outputStream = new FileOutputStream(newFile);
             inputStream = new FileInputStream(original);
             if(encryptFile)
@@ -121,23 +87,14 @@ public class FileEncryptor <T> {
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
-            closeFile(inputStream, outputStream);
-        }
-    }
-
-    public static void renameReverseFile (File original, boolean encrypt){
-        try {
-            new File(returnFile(original,!encrypt).getAbsolutePath()).renameTo(returnFile(original,encrypt));
-        } catch (InvalidFileException e) {
-            e.printStackTrace();
+            closeStreams(inputStream, outputStream);
         }
     }
 
     File createKeyFile(File file){
         int lastDot = file.getPath().lastIndexOf('.');
         String newPath;
-        newPath = file.getPath().substring(0, lastDot)+ ".cipherKey.bin";
+        newPath = file.getPath().substring(0, lastDot)+ ".key.bin";
         return new File(newPath);
     }
-
 }
